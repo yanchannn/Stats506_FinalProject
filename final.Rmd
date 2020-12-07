@@ -1,0 +1,107 @@
+---
+title: "Stats506 Final Project Report"
+author: "Yan Chen, yanchann@umich.edu"
+date: "`r format.Date(Sys.Date(), '%B %d, %Y')`"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE, message=FALSE}
+# 79: -----------------------------------------------------------------------
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+results = read_csv('cbecs.csv')
+```
+
+## **Introduction**
+
+Energy conservation is a hot issue nowadays. Energy can be conserved by reducing
+wastage and losses, improving efficiency through technological upgrades and
+improved operation and maintenance. In this project, I am working on the
+problem:
+
+**Do buildings with electrical upgrades in the past year consume less electricity than those without recent upgrades?**
+
+
+## **Data / Methods**
+
+I use the data from the 2012 US Commercial Building Energy Consumption Survey 
+[(CBECS)](https://www.eia.gov/consumption/commercial/data/2012) 
+
+I will calculate the estimated mean building-level energy
+intensity of the electricity (`bleu`) which is defined as 
+**annual electricity consumption (`ELCNS`) / square foot (`SQFT`)** 
+for buildings with recent electrical upgrades (`RENELC`) and those without.
+The results are further stratified by the primary building activity (`PBA`) and 
+geography (`REGION`).
+
+I focus on five major building activity: office, warehouse, education,
+shopping, and service when doing the analysis since these five categories have
+more observations than others.
+
+The first thing to do is to clean the data: select the observations in the five 
+categories and remove rows with any missing value. Secondly, I use the statement
+`PROC SURVEYMEANS` to calculate the estimated mean energy intensity of 
+electricity and calculate the 95% confidence intervals using the replicate
+weights (`FINALWT1-197`).
+
+The source code can be accessed at my 
+[Github repo](https://github.com/yanchannn/Stats506_FinalProject).
+
+## **Results** {.tabset .tabset-pills}
+### Figure
+```{r plot, echo = FALSE}
+cap = paste0(
+  "**Figure 1.**Energy intensity of Electricity** ", 
+  "This figure shows estimated mean energy intensity of electricity in 2012."
+)
+results %>%
+  mutate(
+    `Primary Building Activity` = activity,
+    `Electrical Upgrade` = RENELC
+  ) %>%
+  ggplot( aes(y = Mean, x = REGION, color = `Electrical Upgrade`) ) +
+  geom_point( position = position_dodge(width = .5), alpha = 0.5, size = 1) +
+  geom_errorbar( 
+    aes(ymin = LowerCLMean, ymax = UpperCLMean), 
+    alpha = 0.5, 
+    position = position_dodge(width = .5)
+  ) + 
+  coord_flip() +
+  facet_wrap(~ `Primary Building Activity`) + 
+  theme_bw() +
+  ylab( "Mean energy intensity of electricity in 2012" ) +
+  xlab('Region')
+```
+
+### Table
+```{r table, echo = FALSE}
+cap2 = paste0("**Table 1.**Energy intensity of Electricity in 2012**",
+              "Numbers in parantheses represent 95% confidence intervals.")
+
+results %>%
+  transmute( 
+    `Region` = REGION, 
+    `Primary Building Activity` = activity,
+    `Electrical Upgrade` = RENELC,
+    `Mean energy intensity` = 
+      sprintf('<div>%4.2f</div> <div>(%4.2f, %4.2f)</div>',
+                     Mean, LowerCLMean,UpperCLMean)
+  ) %>%
+  knitr::kable(
+    format = 'html', 
+    escape = FALSE, 
+    align = 'lllc',
+    cap = cap2
+  ) %>%
+  kableExtra::kable_styling("striped", full_width = TRUE)
+
+```
+
+
+## **To-do**
+
+- add conclusion
+
+- perform t-test of the results and add p-values to the table
