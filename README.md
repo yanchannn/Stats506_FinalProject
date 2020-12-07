@@ -1,5 +1,5 @@
 # Stats506_FinalProject
-Authur: Yan Chen, yanchann@umich.edu
+Author: Yan Chen, yanchann@umich.edu
 
 ## About 
 
