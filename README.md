@@ -5,6 +5,26 @@ Author: Yan Chen, yanchann@umich.edu
 
 This repository Stats506_FinalProject is for sharing the source code and report of the final project for the course Stats506 in Fall 2020.
 
+
+## File Description
+
+Source code files are under [`code`](https://github.com/yanchannn/Stats506_FinalProject/tree/main/code) folder:
+
+- `data.sh`: download data
+
+- `data.sas`: contains code for data cleaning
+
+- `analysis.sas`: contains code for the data analysis save the results in file `cbecs.csv`
+
+Other files:
+
+- `cbecs.csv`: contains the results from SAS
+
+- `final.rmd`: contains code for plot the results
+
+- `final.html`: the write-up for this project
+
+
 ## Project  Overview
 
 This project aims to answer the question: 
@@ -28,22 +48,6 @@ Key variables:
 |`FINALWT`| final full sample building weight |
 |`FINALWT1-197`| final replicate weight |
 
-## File Description
 
-Source code files are under `code` folder:
-
-- `data.sh`: download data
-
-- `data.sas`: contains code for data cleaning
-
-- `analysis.sas`: contains code for the data analysis save the results in file `cbecs.csv`
-
-Other files:
-
-- `cbecs.csv`: contains the results from SAS
-
-- `final.rmd`: contains code for plot the results
-
-- `final.html`: the write-up for this project
 
 
