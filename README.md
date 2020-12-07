@@ -7,7 +7,9 @@ This repository Stats506_FinalProject is for sharing the source code and report 
 
 ## Project  Overview
 
-This project aims to answer the question: Do buildings with electrical upgrades in the past year consume less electricity than those without recent upgrades?
+This project aims to answer the question: 
+
+**Do buildings with electrical upgrades in the past year consume less electricity than those without recent upgrades?**
 
 ## Data
 
