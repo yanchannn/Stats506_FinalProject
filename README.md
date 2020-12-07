@@ -30,11 +30,17 @@ Key variables:
 
 ## File Description
 
+Source code files are under `code` folder:
+
 - `data.sh`: download data
 
 - `data.sas`: contains code for data cleaning
 
-- `analysis.sas`: contains code for the data analysis
+- `analysis.sas`: contains code for the data analysis save the results in file `cbecs.csv`
+
+Other files:
+
+- `cbecs.csv`: contains the results from SAS
 
 - `final.rmd`: contains code for plot the results
 
