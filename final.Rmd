@@ -51,9 +51,9 @@ The source code can be accessed at my
 
 ## **Results** {.tabset .tabset-pills}
 ### Figure
-```{r plot, echo = FALSE}
-cap = paste0(
-  "**Figure 1.**Energy intensity of Electricity** ", 
+```{r plot, echo = FALSE, fig.cap=cap1}
+cap1 = paste0(
+  "**Figure 1.** *Energy intensity of electricity* ", 
   "This figure shows estimated mean energy intensity of electricity in 2012."
 )
 results %>%
@@ -71,16 +71,17 @@ results %>%
   coord_flip() +
   facet_wrap(~ `Primary Building Activity`) + 
   theme_bw() +
+  scale_color_manual(values = c('darkblue', 'darkred')) + 
   ylab( "Mean energy intensity of electricity in 2012" ) +
   xlab('Region')
 ```
 
 ### Table
 ```{r table, echo = FALSE}
-cap2 = paste0("**Table 1.**Energy intensity of Electricity in 2012**",
+cap2 = paste0("**Table 1.** *Energy intensity of Electricity in 2012*",
               "Numbers in parantheses represent 95% confidence intervals.")
 
-results %>%
+res = results %>%
   transmute( 
     `Region` = REGION, 
     `Primary Building Activity` = activity,
@@ -88,14 +89,30 @@ results %>%
     `Mean energy intensity` = 
       sprintf('<div>%4.2f</div> <div>(%4.2f, %4.2f)</div>',
                      Mean, LowerCLMean,UpperCLMean)
-  ) %>%
+  ) 
+
+tab1 = res %>% 
+  filter(`Electrical Upgrade` == 'Yes')
+
+tab2 = res %>% 
+  filter(`Electrical Upgrade` == 'No')
+
+tab3 = left_join(tab1, tab2, by = c('Region', 'Primary Building Activity'))
+
+
+tab3 %>% select(
+  Region, `Primary Building Activity`, 
+  `Yes` = `Mean energy intensity.x`,
+  `No` = `Mean energy intensity.y`
+) %>%
   knitr::kable(
     format = 'html', 
     escape = FALSE, 
-    align = 'lllc',
+    align = 'llcc',
     cap = cap2
   ) %>%
-  kableExtra::kable_styling("striped", full_width = TRUE)
+  kableExtra::kable_styling("striped", full_width = TRUE) %>%
+  kableExtra::add_header_above(header = c(' ' = 2, 'Electrical Upgrade' = 2))
 
 ```
 
@@ -103,5 +120,9 @@ results %>%
 ## **To-do**
 
 - add conclusion
+
+- improve the figure and table format
+
+- add inline comments to the code
 
 - perform t-test of the results and add p-values to the table
