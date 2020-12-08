@@ -42,19 +42,21 @@ value renelc
   2 = 'No';
 run;
 
-/* (i) compute the energy intensity of the electricity (annual electricity
-       consumption/square foot) by the census regions */
+/* compute the energy intensity of the electricity (annual electricity
+   consumption/square foot) by the census regions */
 
 proc surveymeans data=mylib.cbecs varmethod=jackknife mean clm;
   repweights finalwt1-finalwt197 / jkcoefs=1;
   weight finalwt;
   var bleu;
-  domain  region * activity * renelc;
+  domain  region * activity * renelc / diffmeans;
 format region region.;
 format renelc renelc.;
   ods output
-    Domain = cbecs;
+    Domain = cbecs
+    DomainDiffs = diffmean;
 run;
 
 %csvexport(cbecs);
+%csvexport(diffmean);
 
