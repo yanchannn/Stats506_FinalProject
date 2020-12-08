@@ -16,9 +16,13 @@ Source code files are under [`code`](https://github.com/yanchannn/Stats506_Final
 
 - `analysis.sas`: contains code for the data analysis save the results in file `cbecs.csv`
 
-Other files:
+Output .csv files are under [`results`](https://github.com/yanchannn/Stats506_FinalProject/tree/main/results) folder :
 
-- `cbecs.csv`: contains the results from SAS
+- `cbecs.csv`: contains the point estimates and 95% CI from SAS
+
+- `diffmean.csv`: contains the difference between domain means, the standard error of the difference, and the t test statistics
+
+Other files:
 
 - `final.rmd`: contains code for plot the results
 
