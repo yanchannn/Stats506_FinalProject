@@ -11,7 +11,7 @@ output:
 # 79: -----------------------------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-results = read_csv('cbecs.csv')
+results = read_csv('results/cbecs.csv')
 ```
 
 ## **Introduction**
@@ -33,7 +33,7 @@ I will calculate the estimated mean building-level energy
 intensity of the electricity (`bleu`) which is defined as 
 **annual electricity consumption (`ELCNS`) / square foot (`SQFT`)** 
 for buildings with recent electrical upgrades (`RENELC`) and those without.
-The results are further stratified by the primary building activity (`PBA`) and 
+The results are further stratified by the primary building activity (`PBA`) and
 geography (`REGION`).
 
 I focus on five major building activity: office, warehouse, education,
@@ -119,7 +119,7 @@ tab3 %>% select(
 
 ## **To-do**
 
-- add conclusion
+- add conclusion and comments for the results
 
 - improve the figure and table format
 
