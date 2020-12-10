@@ -22,6 +22,7 @@ proc import
 
 /*data preprocessing */
 data  mylib.cbecs;
+  length activity $ 10;
   set mylib.cbecs;
   if renelc = . then delete; 
   * only choose five major activity;
