@@ -5,6 +5,8 @@ date: "`r format.Date(Sys.Date(), '%B %d, %Y')`"
 output: 
   html_document:
     toc: true
+    code_folding: hide
+    theme: united
 ---
 
 ```{r setup, include=FALSE, message=FALSE}
@@ -12,17 +14,22 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 results = read_csv('results/cbecs.csv')
+diffmean = read_csv('results/diffmean.csv')
 ```
 
 ## **Introduction**
 
-Energy conservation is a hot issue nowadays. Energy can be conserved by reducing
-wastage and losses, improving efficiency through technological upgrades and
-improved operation and maintenance. In this project, I am working on the
-problem:
+Energy conservation is a hot issue nowadays. Energy can be conserved by 
+reducing wastage and losses, improving efficiency through technological 
+upgrades and improved operation and maintenance. In this project, 
+I am working on the problem:
 
 **Do buildings with electrical upgrades in the past year consume less electricity than those without recent upgrades?**
 
+I conducted a preliminary analysis on the 2012 CBECS data: calculate the 
+building-level energy intensity of the electricity with and without 
+electrical upgrade and stratifying the results by region and principal 
+building activity.
 
 ## **Data / Methods**
 
@@ -36,22 +43,36 @@ for buildings with recent electrical upgrades (`RENELC`) and those without.
 The results are further stratified by the primary building activity (`PBA`) and
 geography (`REGION`).
 
-I focus on five major building activity: office, warehouse, education,
-shopping, and service when doing the analysis since these five categories have
+Here I focus on five major building activity: office, warehouse, education,
+shopping, and service when analyzing since these five categories have
 more observations than others.
 
-The first thing to do is to clean the data: select the observations in the five 
-categories and remove rows with any missing value. Secondly, I use the statement
+The first thing to do is to clean the data: select the observations in the five
+categories and remove rows with any missing value. 
+
+Secondly, I use the statement
 `PROC SURVEYMEANS` to calculate the estimated mean energy intensity of 
 electricity and calculate the 95% confidence intervals using the replicate
-weights (`FINALWT1-197`).
+weights (`FINALWT1-197`) as described in the 
+[documentation](https://www.eia.gov/consumption/commercial/data/2012/pdf/user_guide_public_use_aug2016.pdf)
+
+Thirdly, I calculate the differences(upgrade less not upgrade) 
+and the corresponding 95% CIs. 
+I assume the estimates are independent. 
+That is if $(\hat{\theta}_1, \hat{v}_1)$ and 
+$(\hat{\theta}_1, \hat{v}_1)$ are the estimates and variances for with upgrade
+and without upgrade respectively, then the differences and their variances are:
+$(\hat{\theta}_1 - \hat{\theta}_2, \hat{v}_1 + \hat{v}_2)$.
+
+Finally, I use `diffmeans` to perform t-tests on the estimated mean energy
+intensity of electricity and get the p-values.
 
 The source code can be accessed at my 
 [Github repo](https://github.com/yanchannn/Stats506_FinalProject).
 
 ## **Results** {.tabset .tabset-pills}
 ### Figure
-```{r plot, echo = FALSE, fig.cap=cap1}
+```{r plot, fig.cap=cap1, fig.width=10, fig.height=7}
 cap1 = paste0(
   "**Figure 1.** *Energy intensity of electricity* ", 
   "This figure shows estimated mean energy intensity of electricity in 2012."
@@ -77,8 +98,8 @@ results %>%
 ```
 
 ### Table
-```{r table, echo = FALSE}
-cap2 = paste0("**Table 1.** *Energy intensity of Electricity in 2012*",
+```{r table}
+cap2 = paste0("**Table 1.** *Energy intensity of Electricity in 2012* ",
               "Numbers in parantheses represent 95% confidence intervals.")
 
 res = results %>%
@@ -88,7 +109,11 @@ res = results %>%
     `Electrical Upgrade` = RENELC,
     `Mean energy intensity` = 
       sprintf('<div>%4.2f</div> <div>(%4.2f, %4.2f)</div>',
-                     Mean, LowerCLMean,UpperCLMean)
+                     Mean, LowerCLMean,UpperCLMean),
+    `se` = StdErr,
+    `lwr` = LowerCLMean,
+    `upr` = UpperCLMean,
+    `est` = Mean
   ) 
 
 tab1 = res %>% 
@@ -97,32 +122,81 @@ tab1 = res %>%
 tab2 = res %>% 
   filter(`Electrical Upgrade` == 'No')
 
-tab3 = left_join(tab1, tab2, by = c('Region', 'Primary Building Activity'))
+diff = tab1 %>%
+  left_join(
+    tab2, by = c("Region", "Primary Building Activity")
+    ) %>%
+  transmute(
+    Region, `Primary Building Activity`,
+    diff = est.x - est.y,
+    se = sqrt(se.x + se.y),
+    lwr = diff - 1.96 * se,
+    upr = diff + 1.96 * se,
+    difference = sprintf('<div>%4.2f</div> <div>(%4.2f, %4.2f)</div>',
+                     diff, lwr, upr),
+    ) 
 
+tab3 = left_join(
+  select(tab1, c(1, 2, 4)), 
+  select(tab2, c(1, 2, 4)), 
+  by = c('Region', 'Primary Building Activity')) %>%
+  left_join(
+    select(diff, c(1, 2, 7)), by = c('Region', 'Primary Building Activity'))
 
-tab3 %>% select(
-  Region, `Primary Building Activity`, 
-  `Yes` = `Mean energy intensity.x`,
-  `No` = `Mean energy intensity.y`
-) %>%
+tab4 = diffmean %>% 
+  filter(`activity` == `_activity`& `REGION` == `_REGION`) %>%
+  transmute(
+    `Region` = REGION, 
+    `Primary Building Activity` = activity,
+    `p-value` = Probt
+  )
+  
+tab3 %>% 
+  left_join(tab4, by = c('Region', 'Primary Building Activity')) %>%
+  select(
+    Region, `Primary Building Activity`, 
+    `Yes` = `Mean energy intensity.x`,
+    `No` = `Mean energy intensity.y`,
+    `Diff` = difference,
+    `p-value`) %>%
   knitr::kable(
     format = 'html', 
     escape = FALSE, 
-    align = 'llcc',
+    align = 'llcccc',
     cap = cap2
   ) %>%
   kableExtra::kable_styling("striped", full_width = TRUE) %>%
-  kableExtra::add_header_above(header = c(' ' = 2, 'Electrical Upgrade' = 2))
+  kableExtra::add_header_above(
+  header = c(' ' = 2, 'Electrical Upgrade' = 2, ' ' = 2))
 
 ```
 
+From Figure 1 and Table 1 we can see that there are not many differences in
+the results between buildings with upgrades in the last year and those without upgrades. Only Office buildings have a significant drop after electrical
+upgrades at 0.05 significance level. 
 
-## **To-do**
+We can also notice that the 95% CIs for buildings with upgrades are much wider. 
 
-- add conclusion and comments for the results
 
-- improve the figure and table format
+## **Conclusion**
 
-- add inline comments to the code
+- There is no evident drops in electricity consumption after recent 
+electrical upgrades.
 
-- perform t-test of the results and add p-values to the table
+The answer to the question depends on the principle building activity: 
+
+- Buildings with principle activity as office in all the four regions 
+consume less after the upgrade.
+
+- Buildings with principle activity as education and shopping actually 
+consume more after the upgrade.
+
+### Limitation
+
+- There might be other confounders that will affect the electricity consumption
+for example, whether electricity is the main source of energy or the building 
+depends more on other energy. 
+
+- The number of observations is too small for each group, leading to
+large variances. Thus, it is hard to get a general answer to the question. 
+
