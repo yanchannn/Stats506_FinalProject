@@ -12,7 +12,7 @@ Source code files are under [`code`](https://github.com/yanchannn/Stats506_Final
 
 - `data.sh`: download data
 
-- `data.sas`: contains code for data cleaning
+- `preprocessing.sas`: contains code for data preprocessing
 
 - `analysis.sas`: contains code for the data analysis save the results in file `cbecs.csv`
 
