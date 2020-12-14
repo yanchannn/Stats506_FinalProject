@@ -25,8 +25,6 @@ libname mylib '/home/yanchann/stats506/fp';
  run;
 %mend;
 
-
-
 /* change format ----------------------------------------------------------- */
 proc format;
 value region
@@ -60,4 +58,3 @@ run;
 %csvexport(diffmean);
 
 /* 79: --------------------------------------------------------------------- */
-
