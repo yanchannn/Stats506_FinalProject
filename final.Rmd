@@ -26,26 +26,25 @@ I am working on the problem:
 
 **Do buildings with electrical upgrades in the past year consume less electricity than those without recent upgrades?**
 
-I conducted a preliminary analysis on the 2012 CBECS data: calculate the 
-building-level energy intensity of the electricity with and without 
-electrical upgrade and stratifying the results by region and principal 
-building activity.
+I conducted a preliminary analysis on the 2012 CBECS data trying to find 
+whether there are significant differences in building-level energy intensity 
+of the electricity for buildings with and without electrical upgrade.
 
 ## **Data / Methods**
 
 I use the data from the 2012 US Commercial Building Energy Consumption Survey 
 [(CBECS)](https://www.eia.gov/consumption/commercial/data/2012) 
 
-I will calculate the estimated mean building-level energy
+I calculate the estimated mean building-level energy
 intensity of the electricity (`bleu`) which is defined as 
 **annual electricity consumption (`ELCNS`) / square foot (`SQFT`)** 
 for buildings with recent electrical upgrades (`RENELC`) and those without.
-The results are further stratified by the primary building activity (`PBA`) and
+The results are stratified by the primary building activity (`PBA`) and
 geography (`REGION`).
 
-Here I focus on five major building activity: office, warehouse, education,
-shopping, and service when analyzing since these five categories have
-more observations than others.
+Here I focus on five major building activities: office, warehouse, education,
+shopping, and service since these five categories have more observations than
+others.
 
 The first thing to do is to clean the data: select the observations in the five
 categories and remove rows with any missing value. 
@@ -57,12 +56,7 @@ weights (`FINALWT1-197`) as described in the
 [documentation](https://www.eia.gov/consumption/commercial/data/2012/pdf/user_guide_public_use_aug2016.pdf)
 
 Thirdly, I calculate the differences(upgrade less not upgrade) 
-and the corresponding 95% CIs. 
-I assume the estimates are independent. 
-That is if $(\hat{\theta}_1, \hat{v}_1)$ and 
-$(\hat{\theta}_1, \hat{v}_1)$ are the estimates and variances for with upgrade
-and without upgrade respectively, then the differences and their variances are:
-$(\hat{\theta}_1 - \hat{\theta}_2, \hat{v}_1 + \hat{v}_2)$.
+and the corresponding 95% CIs where I assume the estimates are independent. 
 
 Finally, I use `diffmeans` to perform t-tests on the estimated mean energy
 intensity of electricity and get the p-values.
@@ -86,8 +80,8 @@ results %>%
   geom_point( position = position_dodge(width = .5), alpha = 0.5, size = 1) +
   geom_errorbar( 
     aes(ymin = LowerCLMean, ymax = UpperCLMean), 
-    alpha = 0.5, 
-    position = position_dodge(width = .5)
+    position = position_dodge(width = .5),
+    width = .2
   ) + 
   coord_flip() +
   facet_wrap(~ `Primary Building Activity`) + 
@@ -186,10 +180,10 @@ electrical upgrades.
 The answer to the question depends on the principle building activity: 
 
 - Buildings with principle activity as office in all the four regions 
-consume less after the upgrade.
+consume less after the upgrades.
 
 - Buildings with principle activity as education and shopping actually 
-consume more after the upgrade.
+consume more after the upgrades.
 
 ### Limitation
 

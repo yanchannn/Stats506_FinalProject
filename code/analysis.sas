@@ -43,8 +43,8 @@ value renelc
 run;
 
 /* compute the energy intensity of the electricity by the census regions */
-proc surveymeans data=mylib.cbecs varmethod=jackknife mean clm;
-  repweights finalwt1-finalwt197 / jkcoefs=1;
+proc surveymeans data = mylib.cbecs varmethod = jackknife mean clm;
+  repweights finalwt1-finalwt197 / jkcoefs = 1;
   weight finalwt;
   var bleu;
   domain  region * activity * renelc / diffmeans;
