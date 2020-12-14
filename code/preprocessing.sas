@@ -19,7 +19,6 @@ proc import
 	(keep = pubid region pba sqft elcns renelc finalwt finalwt1-finalwt197) 
 	replace;
 
-
 /*data preprocessing */
 data  mylib.cbecs;
   length activity $ 10;
@@ -36,6 +35,5 @@ data  mylib.cbecs;
   * create a new variable equal to the building-level energy intensity;
   bleu = elcns/sqft;
 run;
-
 
 /* 79: --------------------------------------------------------------------- */
